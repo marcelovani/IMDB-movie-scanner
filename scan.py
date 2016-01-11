@@ -73,7 +73,7 @@ def scan_movie_files(movie_directory, movie_extensions, list=[]):
             scan_movie_files(filepath, movie_extensions, list)
 
 
-def get_imdb(list):
+def get_imdb(list, limit):
     ''' Get IMDB data. '''
 
     i = imdb.IMDb()
@@ -83,68 +83,90 @@ def get_imdb(list):
         folder = item['folder']
         keywords = item['keywords']
 
-        # search imdb
-        in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
-        out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
+        # Skip folders that contain summary and cover
+        if ( not os.path.isfile(folder + "/Summary.txt")):
 
-        title = unicode(keywords, in_encoding, 'replace')
-        try:
-            # Do the search, and get the results (a list of Movie objects).
-            results = i.search_movie(title)
-        except imdb.IMDbError, e:
-            print "Probably you're not connected to Internet.  Complete error report:"
-            print e
-            sys.exit(3)
+            if ( not os.path.isfile(folder + "/Folder.jpg")):
 
-        # Print the results.
-        print '    %s result%s for "%s":' % (len(results),
-                                            ('', 's')[len(results) != 1],
-                                            title.encode(out_encoding, 'replace'))
-        print 'movieID\t: imdbID : title'
+                # search imdb
+                in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
+                out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
 
-        # Print the long imdb title for every movie.
-        for movie in results:
-            outp = u'%s\t: %s : %s' % (movie.movieID, i.get_imdbID(movie),
-                                        movie['long imdb title'])
-            print outp.encode(out_encoding, 'replace')
+                title = unicode(keywords, in_encoding, 'replace')
+                try:
+                    # Do the search, and get the results (a list of Movie objects).
+                    results = i.search_movie(title, limit)
+                except imdb.IMDbError, e:
+                    print "Probably you're not connected to Internet.  Complete error report:"
+                    print e
+                    sys.exit(3)
 
-        #get close matches only example
-        #words = ['hello', 'Hallo', 'hi', 'house', 'key', 'screen', 'hallo', 'question', 'format']
-        #difflib.get_close_matches('Hello', words)
+                # Print the results.
+                print '    %s result%s for "%s":' % (len(results),
+                                                    ('', 's')[len(results) != 1],
+                                                    title.encode(out_encoding, 'replace'))
+                print 'movieID\t: imdbID : title'
 
-        # Use first result
-        movieID = results[0].movieID
+                # Print the long imdb title for every movie.
+                for movie in results:
+                    outp = u'%s\t: %s : %s' % (movie.movieID, i.get_imdbID(movie),
+                                                movie['long imdb title'])
+                    print outp.encode(out_encoding, 'replace')
 
-        try:
-            # Get a Movie object with the data about the movie identified by
-            # the given movieID.
-            movie = i.get_movie(movieID)
-        except imdb.IMDbError, e:
-            print "Probably you're not connected to Internet. Complete error report:"
-            print e
+                #get close matches only example
+                #words = ['hello', 'Hallo', 'hi', 'house', 'key', 'screen', 'hallo', 'question', 'format']
+                #difflib.get_close_matches('Hello', words)
 
-        if not movie:
-            print 'It seems that there\'s no movie with movieID "%s"' % movieID
+                # Use first result
+                movieID = results[0].movieID
 
-        # print movie info
-        print movie.summary().encode(out_encoding, 'replace')
+                try:
+                    # Get a Movie object with the data about the movie identified by
+                    # the given movieID.
+                    movie = i.get_movie(movieID)
+                except imdb.IMDbError, e:
+                    print "Probably you're not connected to Internet. Complete error report:"
+                    print e
 
-        # save covers
-        thumb_url = movie.get('cover url')
-        cover_url = movie.get('full-size cover url')
+                if not movie:
+                    print 'It seems that there\'s no movie with movieID "%s"' % movieID
 
-        try:
-            # Fetch online image
-            if ( not os.path.isfile(folder + "/thumb.jpg")):
-                urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
-            if ( not os.path.isfile(folder + "/Cover.jpg")):
-                urllib.urlretrieve (cover_url, folder + "/Cover.jpg")
-        except imdb.IMDbError, e:
-            print "Could not download cover:"
-            print e
+                # print movie info
+                filmInfo = movie.summary().encode(out_encoding, 'replace')
+                print filmInfo
 
-        print 'Sending to CMS'
-        #http://stackoverflow.com/questions/9746303/how-do-i-send-a-post-request-as-a-json
+                # save covers
+                thumb_url = movie.get('cover url')
+                cover_url = movie.get('full-size cover url')
+
+                try:
+                    # Fetch online image
+                    if ( not os.path.isfile(folder + "/thumb.jpg")):
+                        urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
+                    if ( not os.path.isfile(folder + "/Cover.jpg")):
+                        urllib.urlretrieve (cover_url, folder + "/Cover.jpg")
+                except imdb.IMDbError, e:
+                    print "Could not download cover:"
+                    print e
+
+                # Write film info
+                write_info(folder, filmInfo)
+
+                print 'Sending to CMS'
+                #http://stackoverflow.com/questions/9746303/how-do-i-send-a-post-request-as-a-json
+
+def write_info(folder, info):
+    ''' Write local film info. '''
+
+    # Create file
+    summaryFile = open(folder + '/Summary.txt','w')
+    config = ConfigParser.RawConfigParser()
+
+    config.add_section('Movie')
+    config.set('Movie','Summary',info)
+
+    config.write(summaryFile)
+    summaryFile.close()
 
 
 if __name__ == '__main__':
@@ -158,6 +180,7 @@ if __name__ == '__main__':
     config.read(pwd + '/config.ini')
 
     imdbpy_folder = config.get('Library','imdbpy_folder')
+    limit = config.get('Library','imdbpy_limit')
     movies_folder = config.get('Movies','movies_folder')
     extensions = eval(config.get('Movies','file_extensions'))
 
@@ -186,5 +209,5 @@ if __name__ == '__main__':
     print
 
     # Fetch imdb data
-    get_imdb(scan_movie_files.list)
+    get_imdb(scan_movie_files.list, limit)
 
