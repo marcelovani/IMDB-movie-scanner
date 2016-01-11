@@ -68,6 +68,8 @@ def scan_movie_files(movie_directory, movie_extensions, list=[]):
 
                 scan_movie_files.counter += 1
 
+                # @TODO display warning if more than one film is in the folder
+
         elif os.path.isdir(filepath):
             # We got a directory, enter into it for further processing
             scan_movie_files(filepath, movie_extensions, list)
