@@ -132,8 +132,7 @@ def get_imdb(list, limit):
                     print 'It seems that there\'s no movie with movieID "%s"' % movieID
 
                 # print movie info
-                filmInfo = movie.summary().encode(out_encoding, 'replace')
-                print filmInfo
+                filmInfo = movie.summary()
 
                 # save covers
                 thumb_url = movie.get('cover url')
@@ -150,10 +149,11 @@ def get_imdb(list, limit):
                     print e
 
                 # Write film info
-                write_info(folder, filmInfo)
+                write_info(folder, filmInfo.encode(out_encoding, 'replace'))
 
                 print 'Sending to CMS'
                 #http://stackoverflow.com/questions/9746303/how-do-i-send-a-post-request-as-a-json
+                send_cms(folder, filmInfo)
 
 def write_info(folder, info):
     ''' Write local film info. '''
@@ -167,6 +167,15 @@ def write_info(folder, info):
 
     config.write(summaryFile)
     summaryFile.close()
+
+    print info
+
+
+def send_cms(folder, info):
+    ''' Send info to end point. '''
+
+    # Convert to json
+    print info
 
 
 if __name__ == '__main__':
