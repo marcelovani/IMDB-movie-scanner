@@ -144,6 +144,7 @@ def get_imdb(list):
             print e
 
         print 'Sending to CMS'
+        #http://stackoverflow.com/questions/9746303/how-do-i-send-a-post-request-as-a-json
 
 
 if __name__ == '__main__':
