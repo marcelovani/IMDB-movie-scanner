@@ -160,12 +160,7 @@ def write_info(folder, info):
 
     # Create file
     summaryFile = open(folder + '/Summary.txt','w')
-    config = ConfigParser.RawConfigParser()
-
-    config.add_section('Movie')
-    config.set('Movie','Summary',info)
-
-    config.write(summaryFile)
+    summaryFile.write(info)
     summaryFile.close()
 
     print info
