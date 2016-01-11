@@ -1,5 +1,6 @@
 # IMDB-movie-scanner
-Python script that scans local folders and updates meta data and cover photos
+Python script that scans local folders and updates meta data and cover photos. It can
+send the film info to a CMS using an End point.
 
 Requires IMDBPY
 https://github.com/alberanid/imdbpy

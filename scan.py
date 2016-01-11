@@ -135,13 +135,15 @@ def get_imdb(list):
 
         try:
             # Fetch online image
-            urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
-            urllib.urlretrieve (cover_url, folder + "/Cover.jpg")
+            if ( not os.path.isfile(folder + "/thumb.jpg")):
+                urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
+            if ( not os.path.isfile(folder + "/Cover.jpg")):
+                urllib.urlretrieve (cover_url, folder + "/Cover.jpg")
         except imdb.IMDbError, e:
             print "Could not download cover:"
             print e
 
-
+        print 'Sending to CMS'
 
 
 if __name__ == '__main__':
@@ -184,5 +186,4 @@ if __name__ == '__main__':
 
     # Fetch imdb data
     get_imdb(scan_movie_files.list)
-
 
