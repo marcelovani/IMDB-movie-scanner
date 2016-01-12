@@ -120,18 +120,21 @@ def get_imdb(list, limit):
                 #difflib.get_close_matches('Hello', words)
 
                 # Use first result
-                movieID = results[0].movieID
+                movie = results[0]
+                i.update(movie)
+                movieID = movie.movieID
+                #movieID = results[0].movieID
 
-                try:
-                    # Get a Movie object with the data about the movie identified by
-                    # the given movieID.
-                    movie = i.get_movie(movieID)
-                except imdb.IMDbError, e:
-                    print "Probably you're not connected to Internet. Complete error report:"
-                    print e
+                #try:
+                #    # Get a Movie object with the data about the movie identified by
+                #    # the given movieID.
+                #    movie = i.get_movie(movieID)
+                #except imdb.IMDbError, e:
+                #    print "Probably you're not connected to Internet. Complete error report:"
+                #    print e
 
-                if not movie:
-                    print 'It seems that there\'s no movie with movieID "%s"' % movieID
+                #if not movie:
+                #    print 'It seems that there\'s no movie with movieID "%s"' % movieID
 
                 # print movie info
                 filmInfo = movie.summary()
@@ -155,7 +158,7 @@ def get_imdb(list, limit):
 
                 print 'Sending to CMS'
                 #http://stackoverflow.com/questions/9746303/how-do-i-send-a-post-request-as-a-json
-                send_cms(folder, filmInfo)
+                send_cms(folder, movie)
 
 def write_info(folder, info):
     ''' Write local film info. '''
@@ -168,11 +171,27 @@ def write_info(folder, info):
     print info
 
 
-def send_cms(folder, info):
+def send_cms(folder, movie):
     ''' Send info to end point. '''
 
-    # Convert to json
-    print info
+    config = ConfigParser.RawConfigParser()
+    config.read(pwd + '/config.ini')
+    cms_api_url = config.get('CMS','cms_api_url')
+
+    data = {
+        'imdb_id': movie.movieID,
+        'genre': movie.get('genre'),
+        'title': movie.get('long imdb title'),
+        'plot': movie.get('plot summary'),
+        'thumb': movie.get('cover url'),
+        'cover': movie.get('full-size cover url'),
+    }
+
+    req = urllib2.Request(cms_api_url)
+    req.add_header('Content-Type', 'application/json')
+
+    response = urllib2.urlopen(req, json.dumps(data))
+    print response.read()
 
 
 if __name__ == '__main__':
@@ -189,6 +208,7 @@ if __name__ == '__main__':
     limit = config.get('Library','imdbpy_limit')
     movies_folder = config.get('Movies','movies_folder')
     extensions = eval(config.get('Movies','file_extensions'))
+    cms_api_url = config.get('CMS','cms_api_url')
 
     # Directory argument supplied, check and use if it's a directory
     if len(sys.argv) == 2:
