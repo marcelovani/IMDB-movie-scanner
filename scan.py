@@ -157,7 +157,6 @@ def get_imdb(list, limit):
                 write_info(folder, filmInfo.encode(out_encoding, 'replace'))
 
                 print 'Sending to CMS'
-                #http://stackoverflow.com/questions/9746303/how-do-i-send-a-post-request-as-a-json
                 send_cms(folder, movie)
 
 def write_info(folder, info):
@@ -183,6 +182,8 @@ def send_cms(folder, movie):
         'genre': movie.get('genre'),
         'title': movie.get('long imdb title'),
         'plot': movie.get('plot summary'),
+        'rating': movie.get('rating'),
+        'votes': movie.get('votes'),
         'thumb': movie.get('cover url'),
         'cover': movie.get('full-size cover url'),
     }
