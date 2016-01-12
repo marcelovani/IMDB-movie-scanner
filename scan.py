@@ -179,7 +179,7 @@ def send_cms(folder, movie):
 
     data = {
         'imdb_id': movie.movieID,
-        'genre': movie.get('genre'),
+        'genres': movie.get('genre'),
         'title': movie.get('long imdb title'),
         'plot': movie.get('plot summary'),
         'rating': movie.get('rating'),
