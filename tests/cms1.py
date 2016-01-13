@@ -3,9 +3,15 @@
 import os, sys
 import json
 import urllib2
+import ConfigParser
 
-cms_api_url = 'http://movie-catalog.local:8083/api/imdb/movie/add'
+config = ConfigParser.RawConfigParser()
 
+# Read config file
+config.read(os.getcwd() + '/config.ini')
+
+cms_api_url = config.get('CMS','cms_api_url')
+print cms_api_url
 data = {
         'imdb_id': '1234',
         'genres': 'comedy',

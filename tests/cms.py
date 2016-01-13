@@ -5,11 +5,18 @@ import json
 import urllib2
 import imdb
 import pprint
+import ConfigParser
+
+config = ConfigParser.RawConfigParser()
+# Read config file
+config.read(os.getcwd() + '/config.ini')
+cms_api_url = config.get('CMS','cms_api_url')
 
 i = imdb.IMDb()
 
-cms_api_url = 'http://movie-catalog.local:8083/api/imdb/movie/add'
 movieId = '0234215'
+movieId = '0120737'
+movieId = '1375666'
 
 in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
 out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
