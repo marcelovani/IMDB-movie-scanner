@@ -210,6 +210,7 @@ if __name__ == '__main__':
     movies_folder = config.get('Movies','movies_folder')
     extensions = eval(config.get('Movies','file_extensions'))
     cms_api_url = config.get('CMS','cms_api_url')
+    cms_cron_url = config.get('CMS','cms_cron_url')
 
     # Directory argument supplied, check and use if it's a directory
     if len(sys.argv) == 2:
