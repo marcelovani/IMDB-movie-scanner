@@ -182,6 +182,7 @@ def send_cms(folder, movie):
         'genres': movie.get('genre'),
         'title': movie.get('long imdb title'),
         'plot': movie.get('plot summary'),
+        'countries': movie.get('country'),
         'rating': movie.get('rating'),
         'votes': movie.get('votes'),
         'thumb': movie.get('cover url'),

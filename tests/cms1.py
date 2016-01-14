@@ -16,6 +16,7 @@ data = {
         'imdb_id': '1234',
         'genres': 'comedy',
         'title': 'hot shots',
+        'countries': 'USA, Australia, Brazil',
         'plot': 'bla bla bla',
         'rating': '7',
         'votes': '99',
