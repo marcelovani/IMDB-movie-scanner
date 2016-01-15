@@ -17,9 +17,10 @@ i = imdb.IMDb()
 
 movieId = '0234215'
 movieId = '0120737'
-movieId = '0926084'
 movieId = '0468569'
 movieId = '1375666'
+movieId = '0926084'
+movieId = '0110912'
 
 in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
 out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
