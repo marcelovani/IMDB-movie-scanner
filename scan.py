@@ -138,10 +138,12 @@ def get_imdb(list, limit):
 
                 # print movie info
                 filmInfo = movie.summary()
+                filmInfo = filmInfo + "\nIMDB ID: " + movieID
 
                 # save covers
                 thumb_url = movie.get('cover url')
                 cover_url = movie.get('full-size cover url')
+                filmInfo = filmInfo + "\nCover: " + cover_url
 
                 try:
                     # Fetch online image
@@ -183,6 +185,7 @@ def send_cms(folder, movie):
         'title': movie.get('long imdb title'),
         'plot': movie.get('plot summary'),
         'countries': movie.get('country'),
+        'directors': get_people(movie.get('director')),
         'rating': movie.get('rating'),
         'votes': movie.get('votes'),
         'thumb': movie.get('cover url'),
@@ -195,6 +198,14 @@ def send_cms(folder, movie):
     response = urllib2.urlopen(req, json.dumps(data))
     print response.read()
 
+def get_people(personList):
+    """ Build a list of ids and names """
+    ids = []
+    names = []
+    for person in personList:
+        ids.append(person.getID())
+        names.append(person.get('name'))
+    return {'ids':ids, 'names':names}
 
 if __name__ == '__main__':
 

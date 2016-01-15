@@ -4,6 +4,14 @@ import os, sys
 import json
 import urllib2
 import ConfigParser
+import re, pprint
+
+def get_people(people):
+    ''' Parse people and return an array '''
+
+    ids = re.findall(ur'Person\sid:(\d+)', people)
+    names = re.findall(ur'name:_(.*?)_', people)
+    return {'ids':ids, 'names':names}
 
 config = ConfigParser.RawConfigParser()
 
@@ -17,6 +25,7 @@ data = {
         'genres': 'comedy',
         'title': 'hot shots',
         'countries': 'USA, Australia, Brazil',
+        'directors': get_people("[<Person id:0905152[http] name:_Wachowski, Andy_>, <Person id:0905154[http] name:_Wachowski, Lana_>]"),
         'plot': 'bla bla bla',
         'rating': '7',
         'votes': '99',
