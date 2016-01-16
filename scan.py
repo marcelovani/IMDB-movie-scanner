@@ -180,6 +180,8 @@ def send_cms(folder, movie):
     cms_api_url = config.get('CMS','cms_api_url')
 
     data = {
+        'folder': folder,
+        'owned': 'owned',
         'imdb_id': movie.movieID,
         'genres': movie.get('genre'),
         'title': movie.get('long imdb title'),
