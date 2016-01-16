@@ -21,6 +21,7 @@ movieId = '0468569'
 movieId = '1375666'
 movieId = '0926084'
 movieId = '0110912'
+movieId = '0993846'
 
 in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
 out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
@@ -48,11 +49,14 @@ data = {
         'countries': movie.get('country'),
         'directors': get_people(movie.get('director')),
         'cast': get_people(movie.get('cast')),
+        'writer': get_people(movie.get('writer')),
         'rating': movie.get('rating'),
         'votes': movie.get('votes'),
         'thumb': movie.get('cover url'),
         'cover': movie.get('full-size cover url'),
 }
+
+print data
 
 req = urllib2.Request(cms_api_url)
 req.add_header('Content-Type', 'application/json')

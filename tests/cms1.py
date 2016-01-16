@@ -29,6 +29,7 @@ data = {
         'countries': 'USA, Australia, Brazil',
         'directors': get_people([<Person id:0905152[http] name:_Wachowski, Andy_>, <Person id:0905154[http] name:_Wachowski, Lana_>]),
         'cast': get_people([<Person id:0905152[http] name:_Wachowski, Andy_>, <Person id:0905154[http] name:_Wachowski, Lana_>]),
+        'writer': get_people([<Person id:0905152[http] name:_Wachowski, Andy_>, <Person id:0905154[http] name:_Wachowski, Lana_>]),
         'plot': 'bla bla bla',
         'rating': '7',
         'votes': '99',

@@ -187,6 +187,7 @@ def send_cms(folder, movie):
         'countries': movie.get('country'),
         'directors': get_people(movie.get('director')),
         'cast': get_people(movie.get('cast')),
+        'writer': get_people(movie.get('writer')),
         'rating': movie.get('rating'),
         'votes': movie.get('votes'),
         'thumb': movie.get('cover url'),
