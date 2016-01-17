@@ -88,7 +88,7 @@ def get_imdb(list, limit):
         # Skip folders that contain summary and cover
         if ( not os.path.isfile(folder + "/Summary.txt") or scan_method == 'all' ):
 
-            if ( not os.path.isfile(folder + "/Folder.jpg") or scan_method == 'all' ):
+            if ( not os.path.isfile(folder + "/folder.jpg") or scan_method == 'all' ):
 
                 # search imdb
                 in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
@@ -151,8 +151,8 @@ def get_imdb(list, limit):
                         # Fetch online image
                         if ( not os.path.isfile(folder + "/thumb.jpg")):
                             urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
-                        if ( not os.path.isfile(folder + "/Cover.jpg")):
-                            urllib.urlretrieve (cover_url, folder + "/Cover.jpg")
+                        if ( not os.path.isfile(folder + "/folder.jpg")):
+                            urllib.urlretrieve (cover_url, folder + "/folder.jpg")
                     except imdb.IMDbError, e:
                         print "NOTICE: Could not download cover:"
                         print e
