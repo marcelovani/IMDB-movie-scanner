@@ -50,14 +50,8 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                 if not filepath.endswith(movie_extension):
                     continue
 
-                #print('Folder ' + movies_folder)
-
                 film = filename.replace('.' + movie_extension, '')
-                #film = film.replace('_', ' ')
-                #film = film.replace('-', ' ')
-                #film = re.sub(r'\.(?!\w)*', ' ', film)
                 film = re.sub(ur'[\W_]+', ' ', film, flags=re.UNICODE)
-                #print(format(film))
 
                 info = {
                         "folder": movies_folder,
@@ -123,18 +117,6 @@ def get_imdb(list, limit):
                 movie = results[0]
                 i.update(movie)
                 movieID = movie.movieID
-                #movieID = results[0].movieID
-
-                #try:
-                #    # Get a Movie object with the data about the movie identified by
-                #    # the given movieID.
-                #    movie = i.get_movie(movieID)
-                #except imdb.IMDbError, e:
-                #    print "Probably you're not connected to Internet. Complete error report:"
-                #    print e
-
-                #if not movie:
-                #    print 'It seems that there\'s no movie with movieID "%s"' % movieID
 
                 # print movie info
                 filmInfo = movie.summary()
