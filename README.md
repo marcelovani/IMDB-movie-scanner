@@ -3,6 +3,8 @@
 Python script that scans local folders and updates meta data and cover photos. It can
 send the film info to a CMS using an End point.
 
+* It will only scan one movie per folder, which means, you need to create a folder for each film.
+
 Requires IMDBPY
 https://github.com/alberanid/imdbpy
 
