@@ -210,9 +210,15 @@ def get_people(personList):
     """ Build a list of ids and names """
     ids = []
     names = []
-    for person in personList:
+    if type(personList) is list:
+        for person in personList:
+            ids.append(person.getID())
+            names.append(person.get('name'))
+    else:
+        person = personList
         ids.append(person.getID())
         names.append(person.get('name'))
+
     return {'ids':ids, 'names':names}
 
 if __name__ == '__main__':
