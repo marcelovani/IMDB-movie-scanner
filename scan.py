@@ -101,6 +101,7 @@ def get_imdb(list, limit):
                 print '    %s result%s for "%s":' % (len(results),
                                                     ('', 's')[len(results) != 1],
                                                     title.encode(out_encoding, 'replace'))
+                print 'Folder ' + folder
                 print 'movieID\t: imdbID : title'
 
                 # Print the long imdb title for every movie.
