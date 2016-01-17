@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys
+import os, sys, getopt
 import ConfigParser
 import pprint
 import json
@@ -23,23 +23,23 @@ try:
 except NameError:
     pass
 
-def scan_movie_files(movie_directory, movie_extensions, list=[]):
-    ''' Print files in movie_directory with extensions in movie_extensions, recursively. '''
+def scan_movie_files(movies_folder, movie_extensions, list=[]):
+    ''' Print files in movies_folder with extensions in movie_extensions, recursively. '''
 
     try:
        list
     except NameError:
        list = []
 
-    # Get the absolute path of the movie_directory parameter
-    movie_directory = os.path.abspath(movie_directory)
+    # Get the absolute path of the movies_folder parameter
+    movies_folder = os.path.abspath(movies_folder)
 
-    # Get a list of files in movie_directory
-    movie_directory_files = os.listdir(movie_directory)
+    # Get a list of files in movies_folder
+    movies_folder_files = os.listdir(movies_folder)
 
     # Traverse through all files
-    for filename in movie_directory_files:
-        filepath = os.path.join(movie_directory, filename)
+    for filename in movies_folder_files:
+        filepath = os.path.join(movies_folder, filename)
 
         # Check if it's a normal file or directory
         if os.path.isfile(filepath):
@@ -50,7 +50,7 @@ def scan_movie_files(movie_directory, movie_extensions, list=[]):
                 if not filepath.endswith(movie_extension):
                     continue
 
-                #print('Folder ' + movie_directory)
+                #print('Folder ' + movies_folder)
 
                 film = filename.replace('.' + movie_extension, '')
                 #film = film.replace('_', ' ')
@@ -60,7 +60,7 @@ def scan_movie_files(movie_directory, movie_extensions, list=[]):
                 #print(format(film))
 
                 info = {
-                        "folder": movie_directory,
+                        "folder": movies_folder,
                         "keywords": film,
                     }
                 list.append(info)
@@ -86,9 +86,9 @@ def get_imdb(list, limit):
         keywords = item['keywords']
 
         # Skip folders that contain summary and cover
-        if ( not os.path.isfile(folder + "/Summary.txt")):
+        if ( not os.path.isfile(folder + "/Summary.txt") or scan_method == 'all' ):
 
-            if ( not os.path.isfile(folder + "/Folder.jpg")):
+            if ( not os.path.isfile(folder + "/Folder.jpg") or scan_method == 'all' ):
 
                 # search imdb
                 in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
@@ -237,29 +237,34 @@ if __name__ == '__main__':
     extensions = eval(config.get('Movies','file_extensions'))
     cms_api_url = config.get('CMS','cms_api_url')
     cms_cron_url = config.get('CMS','cms_cron_url')
+    scan_method = 'new'
 
-    # Directory argument supplied, check and use if it's a directory
-    if len(sys.argv) == 2:
-        if os.path.isdir(sys.argv[1]):
-            movie_directory = sys.argv[1]
+    # Read command line args
+    try:
+        myopts, args = getopt.getopt(sys.argv[1:],"f:o:")
+    except getopt.GetoptError as e:
+        print (str(e))
+        print("Usage: %s -f <folder> -o [new|all]" % sys.argv[0])
+        sys.exit(2)
+
+    for o, a in myopts:
+        if o == '-f':
+            movies_folder = a
+        elif o == '-o':
+            scan_method = a
         else:
-            print('ERROR: "{0}" is not a directory.'.format(sys.argv[1]))
-            exit(1)
-    else:
-        # Set our movie directory to the current working directory
-        movie_directory = movies_folder
+            print("Usage: %s -i input -o output" % sys.argv[0])
 
-    print('\n -- Looking for movies in "{0}" --\n'.format(movie_directory))
-
+    print('\n -- Looking for movies in "{0}" --\n'.format(movies_folder))
     # Set the number of processed files equal to zero
     scan_movie_files.counter = 0
 
     # Start Processing
-    scan_movie_files(movie_directory, extensions)
+    scan_movie_files(movies_folder, extensions)
 
     # We are done. Exit now.
     print('\n -- {0} Movie File(s) found in directory {1} --'.format \
-            (scan_movie_files.counter, movie_directory))
+            (scan_movie_files.counter, movies_folder))
     print
 
     # Fetch imdb data
