@@ -138,22 +138,26 @@ def get_imdb(list, limit):
 
                 # print movie info
                 filmInfo = movie.summary()
-                filmInfo = filmInfo + "\nIMDB ID: " + movieID
+                filmInfo += u'IMDB ID: %s.\n' % movieID
 
                 # save covers
                 thumb_url = movie.get('cover url')
                 cover_url = movie.get('full-size cover url')
-                filmInfo = filmInfo + "\nCover: " + cover_url
 
-                try:
-                    # Fetch online image
-                    if ( not os.path.isfile(folder + "/thumb.jpg")):
-                        urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
-                    if ( not os.path.isfile(folder + "/Cover.jpg")):
-                        urllib.urlretrieve (cover_url, folder + "/Cover.jpg")
-                except imdb.IMDbError, e:
-                    print "Could not download cover:"
-                    print e
+                if cover_url:
+                    filmInfo += u'Cover: %s.\n' % cover_url
+                    print 'Fetching cover'
+                    try:
+                        # Fetch online image
+                        if ( not os.path.isfile(folder + "/thumb.jpg")):
+                            urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
+                        if ( not os.path.isfile(folder + "/Cover.jpg")):
+                            urllib.urlretrieve (cover_url, folder + "/Cover.jpg")
+                    except imdb.IMDbError, e:
+                        print "NOTICE: Could not download cover:"
+                        print e
+                else:
+                    print 'NOTICE: No cover available'
 
                 # Write film info
                 write_info(folder, filmInfo.encode(out_encoding, 'replace'))
