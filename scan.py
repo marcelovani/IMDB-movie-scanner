@@ -6,6 +6,7 @@ import pprint
 import json
 import re
 import urllib, urllib2
+from spell import *
 
 # Import the IMDbPY package.
 try:
@@ -57,7 +58,9 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                         "folder": movies_folder,
                         "keywords": film,
                     }
+
                 list.append(info)
+
                 scan_movie_files.list = list
 
                 scan_movie_files.counter += 1
@@ -69,7 +72,7 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
             scan_movie_files(filepath, movie_extensions, list)
 
 
-def get_imdb(list, limit):
+def get_imdb(list, limit, use_dic):
     ''' Get IMDB data. '''
 
     i = imdb.IMDb()
@@ -87,6 +90,11 @@ def get_imdb(list, limit):
                 # search imdb
                 in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
                 out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
+
+                print "File: " + keywords
+                if use_dic:
+                    keywords = spellcheck(keywords)
+                    print "Keywords: " + keywords
 
                 title = unicode(keywords, in_encoding, 'replace')
                 try:
@@ -220,6 +228,7 @@ if __name__ == '__main__':
     extensions = eval(config.get('Movies','file_extensions'))
     cms_api_url = config.get('CMS','cms_api_url')
     cms_cron_url = config.get('CMS','cms_cron_url')
+    use_dic = config.get('Options','use_dic')
     scan_method = 'new'
 
     # Read command line args
@@ -251,5 +260,5 @@ if __name__ == '__main__':
     print
 
     # Fetch imdb data
-    get_imdb(scan_movie_files.list, limit)
+    get_imdb(scan_movie_files.list, limit, use_dic)
 

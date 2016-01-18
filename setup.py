@@ -47,5 +47,8 @@ if __name__ == "__main__":
 	config.set('CMS','cms_api_id','admin')
 	config.set('CMS','cms_api_key','0000-0000-0000-0000')
 
+  config.add_section('Options')
+	config.set('Options','use_dic', 0)
+
 	config.write(cfgfile)
 	cfgfile.close()
