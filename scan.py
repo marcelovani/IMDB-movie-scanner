@@ -92,7 +92,7 @@ def get_imdb(list, limit, use_dic):
                 out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
 
                 print "File: " + keywords
-                if use_dic:
+                if use_dic == 1:
                     keywords = spellcheck(keywords)
                     print "Keywords: " + keywords
 
@@ -105,56 +105,60 @@ def get_imdb(list, limit, use_dic):
                     print e
                     sys.exit(3)
 
-                # Print the results.
-                print '    %s result%s for "%s":' % (len(results),
-                                                    ('', 's')[len(results) != 1],
-                                                    title.encode(out_encoding, 'replace'))
-                print 'Folder ' + folder
-                print 'movieID\t: imdbID : title'
+                if results:
+                    # Print the results.
+                    print '    %s result%s for "%s":' % (len(results),
+                                                        ('', 's')[len(results) != 1],
+                                                        title.encode(out_encoding, 'replace'))
+                    print 'Folder ' + folder
+                    print 'movieID\t: imdbID : title'
 
-                # Print the long imdb title for every movie.
-                for movie in results:
-                    outp = u'%s\t: %s : %s' % (movie.movieID, i.get_imdbID(movie),
-                                                movie['long imdb title'])
-                    print outp.encode(out_encoding, 'replace')
+                    # Print the long imdb title for every movie.
+                    for movie in results:
+                        outp = u'%s\t: %s : %s' % (movie.movieID, i.get_imdbID(movie),
+                                                    movie['long imdb title'])
+                        print outp.encode(out_encoding, 'replace')
 
-                #get close matches only example
-                #words = ['hello', 'Hallo', 'hi', 'house', 'key', 'screen', 'hallo', 'question', 'format']
-                #difflib.get_close_matches('Hello', words)
+                    #get close matches only example
+                    #words = ['hello', 'Hallo', 'hi', 'house', 'key', 'screen', 'hallo', 'question', 'format']
+                    #difflib.get_close_matches('Hello', words)
 
-                # Use first result
-                movie = results[0]
-                i.update(movie)
-                movieID = movie.movieID
+                    # Use first result
+                    movie = results[0]
 
-                # print movie info
-                filmInfo = movie.summary()
-                filmInfo += u'IMDB ID: %s.\n' % movieID
+                    i.update(movie)
+                    movieID = movie.movieID
 
-                # save covers
-                thumb_url = movie.get('cover url')
-                cover_url = movie.get('full-size cover url')
+                    # print movie info
+                    filmInfo = movie.summary()
+                    filmInfo += u'IMDB ID: %s.\n' % movieID
 
-                if cover_url:
-                    filmInfo += u'Cover: %s.\n' % cover_url
-                    print 'Fetching cover'
-                    try:
-                        # Fetch online image
-                        if ( not os.path.isfile(folder + "/thumb.jpg")):
-                            urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
-                        if ( not os.path.isfile(folder + "/folder.jpg")):
-                            urllib.urlretrieve (cover_url, folder + "/folder.jpg")
-                    except imdb.IMDbError, e:
-                        print "NOTICE: Could not download cover:"
-                        print e
+                    # save covers
+                    thumb_url = movie.get('cover url')
+                    cover_url = movie.get('full-size cover url')
+
+                    if cover_url:
+                        filmInfo += u'Cover: %s.\n' % cover_url
+                        print 'Fetching cover'
+                        try:
+                            # Fetch online image
+                            if ( not os.path.isfile(folder + "/thumb.jpg")):
+                                urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
+                            if ( not os.path.isfile(folder + "/folder.jpg")):
+                                urllib.urlretrieve (cover_url, folder + "/folder.jpg")
+                        except imdb.IMDbError, e:
+                            print "NOTICE: Could not download cover:"
+                            print e
+                    else:
+                        print 'NOTICE: No cover available'
+
+                    # Write film info
+                    write_info(folder, filmInfo.encode(out_encoding, 'replace'))
+
+                    print 'Sending to CMS'
+                    send_cms(folder, movie)
                 else:
-                    print 'NOTICE: No cover available'
-
-                # Write film info
-                write_info(folder, filmInfo.encode(out_encoding, 'replace'))
-
-                print 'Sending to CMS'
-                send_cms(folder, movie)
+                    print 'NOTICE: No results found'
 
 def write_info(folder, info):
     ''' Write local film info. '''
