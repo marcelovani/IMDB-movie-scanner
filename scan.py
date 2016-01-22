@@ -47,25 +47,30 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                 folder_scanned = 1
 
                 # Remove strings from the filename
-                film = filename.replace('.' + movie_extension, '').lower()
+                keywords = filename.replace('.' + movie_extension, '').lower()
 
                 # Clean fixed strings
-                film = re.sub(ur'[\W\_\.\(\)\[\]]+', ' ', film, flags=re.UNICODE)
+                keywords = re.sub(ur'[\W\_\.\(\)\[\]]+', ' ', keywords, flags=re.UNICODE)
 
                 # Clear single digits if year is present
-                film = re.sub(r'(\s\d{1}\s)(.*)(\d{4})', r' \2\3', film)
+                keywords = re.sub(r'(\s\d{1}\s)(.*)(\d{4})', r' \2\3', keywords)
 
                 # Add parenthesis to year
-                film = re.sub(r'(\d{4})', r'(\1)', film)
+                keywords = re.sub(r'(\d{4})', r'(\1)', keywords)
 
                 # Remove custom strings fom the filename
                 for str in eval(ignore_strings):
-                    film = film.replace(str.lower(), '')
+                    keywords = keywords.replace(str.lower(), '')
 
                 # Remove duplicated spaces
-                film = re.sub(r'(\s+)', r' ', film)
+                keywords = re.sub(r'(\s+)', r' ', keywords)
 
-                info = {"folder": movies_folder, "keywords": film}
+                info = {"folder": movies_folder, "keywords": keywords}
+
+                if verbose_level > 1:
+                    print "Filename: " + filename
+                    print "Keywords: " + keywords
+                    print
 
                 list.append(info)
 
@@ -86,13 +91,14 @@ if __name__ == '__main__':
     ignore_strings = get_config('Options','ignore_strings')
     verbose_level = int(get_config('Options','verbose_level'))
     scan_method = 'new'
+    dry_run = 0
 
     # Read command line args
     try:
-        myopts, args = getopt.getopt(sys.argv[1:],"f:o:")
+        myopts, args = getopt.getopt(sys.argv[1:],"f:o:d")
     except getopt.GetoptError as e:
         print (str(e))
-        print("Usage: %s -f <folder> -o [new|all]" % sys.argv[0])
+        print("Usage: %s -f <folder> -o [new|all] -dry-run" % sys.argv[0])
         sys.exit(2)
 
     for o, a in myopts:
@@ -100,11 +106,14 @@ if __name__ == '__main__':
             movies_folder = a
         elif o == '-o':
             scan_method = a
+        elif o == '-d':
+            dry_run = 1
         else:
             print("Usage: %s -i input -o output" % sys.argv[0])
 
     if verbose_level > 0:
         print('\n -- Looking for movies in "{0}" --\n'.format(movies_folder))
+
     # Set the number of processed files equal to zero
     scan_movie_files.counter = 0
 
@@ -118,5 +127,6 @@ if __name__ == '__main__':
         print
 
     # Fetch imdb data
-    if hasattr(scan_movie_files, 'list'):
-        get_imdb(scan_movie_files.list, scan_method)
+    if not dry_run:
+        if hasattr(scan_movie_files, 'list'):
+            get_imdb(scan_movie_files.list, scan_method)
