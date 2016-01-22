@@ -43,8 +43,8 @@ def get_imdb(list):
         out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
 
         if verbose_level > 0:
-            print 'Folder: ' + folder
-            print "File: " + keywords
+            print "Folder: " + folder
+            print "Keywords: " + keywords
 
         if use_dic == 1:
             keywords = spellcheck(keywords)

@@ -23,6 +23,7 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
 
     # Traverse through all files
     for filename in movies_folder_files:
+        folder_scanned = False
         filepath = os.path.join(movies_folder, filename)
 
         # Check if it's a normal file or directory
@@ -38,6 +39,11 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                 summary_file = os.path.join(movies_folder, "Summary.txt")
                 if ( os.path.isfile(summary_file) and scan_method == 'new' ):
                     continue
+
+                # Only query IMDB for the first movie found in the folder
+                if folder_scanned == True:
+                    continue
+                folder_scanned = True
 
                 # Remove strings from the filename
                 film = filename.replace('.' + movie_extension, '').lower()
