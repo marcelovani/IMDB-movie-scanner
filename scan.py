@@ -119,4 +119,4 @@ if __name__ == '__main__':
 
     # Fetch imdb data
     if hasattr(scan_movie_files, 'list'):
-        get_imdb(scan_movie_files.list)
+        get_imdb(scan_movie_files.list, scan_method)

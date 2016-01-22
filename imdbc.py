@@ -25,7 +25,7 @@ limit = int(get_config('IMDB','limit'))
 use_dic = get_config('Options','use_dic')
 verbose_level = int(get_config('Options','verbose_level'))
 
-def get_imdb(list):
+def get_imdb(list, scan_method):
     ''' Get IMDB data. '''
 
     if not list:
@@ -97,9 +97,9 @@ def get_imdb(list):
                 print 'Fetching cover'
                 try:
                     # Fetch online image
-                    if ( not os.path.isfile(folder + "/thumb.jpg")):
+                    if ( not os.path.isfile(folder + "/thumb.jpg") or scan_method == 'all' ):
                         urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
-                    if ( not os.path.isfile(folder + "/folder.jpg")):
+                    if ( not os.path.isfile(folder + "/folder.jpg") or scan_method == 'all' ):
                         urllib.urlretrieve (cover_url, folder + "/folder.jpg")
                 except imdb.IMDbError, e:
                     print "NOTICE: Could not download cover:"
