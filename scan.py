@@ -52,7 +52,7 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                 film = re.sub(ur'[\W\_\.\-\(\)\[\]]+', ' ', film, flags=re.UNICODE)
 
                 # Clear single digits if year is present
-                film = re.sub(r'(\d{1}).*(\d{4})', r'\2', film)
+                film = re.sub(r'(\s\d{1}).*(\d{4})', r' \2', film)
 
                 # Add parenthesis to year
                 film = re.sub(r'(\d{4})', r'(\1)', film)
