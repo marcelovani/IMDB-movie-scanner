@@ -10,6 +10,8 @@ from imdbc import *
 def scan_movie_files(movies_folder, movie_extensions, list=[]):
     ''' Print files in movies_folder with extensions in movie_extensions, recursively. '''
 
+    folder_scanned = 0
+
     try:
        list
     except NameError:
@@ -23,7 +25,6 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
 
     # Traverse through all files
     for filename in movies_folder_files:
-        folder_scanned = False
         filepath = os.path.join(movies_folder, filename)
 
         # Check if it's a normal file or directory
@@ -41,9 +42,9 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                     continue
 
                 # Only query IMDB for the first movie found in the folder
-                if folder_scanned == True:
+                if folder_scanned:
                     continue
-                folder_scanned = True
+                folder_scanned = 1
 
                 # Remove strings from the filename
                 film = filename.replace('.' + movie_extension, '').lower()
