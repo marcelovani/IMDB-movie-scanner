@@ -40,17 +40,20 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                     continue
 
                 # Remove strings from the filename
-                film = filename.replace('.' + movie_extension, '')
+                film = filename.replace('.' + movie_extension, '').lower()
 
                 # Clean fixed strings
                 film = re.sub(ur'[\W\_\.\-\(\)\[\]]+', ' ', film, flags=re.UNICODE)
 
+                # Clear single digits if year is present
+                film = re.sub(r'(\d{1}).*(\d{4})', r'\2', film)
+
                 # Add parenthesis to year
-                film = re.sub(r'(\d+){1,4}', r'(\1)', film)
+                film = re.sub(r'(\d{4})', r'(\1)', film)
 
                 # Remove custom strings fom the filename
                 for str in eval(ignore_strings):
-                    film = film.replace(str, '')
+                    film = film.replace(str.lower(), '')
 
                 # Remove duplicated spaces
                 film = re.sub(r'(\s+)', r' ', film)
