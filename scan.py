@@ -1,28 +1,11 @@
 #!/usr/bin/env python
 
 import os, sys, getopt
-import ConfigParser
 import pprint
-import json
 import re
-import urllib, urllib2
-from spell import *
+from config import *
+from imdbc import *
 
-# Import the IMDbPY package.
-try:
-    import imdb
-except ImportError:
-    print 'You need to install the IMDbPY package!'
-    sys.exit(1)
-
-
-# List movies
-# input() workaround to support Python 2. Python 3 renamed raw_input() => input().
-# Alias input() to raw_input() if raw_input() exists (Python 2).
-try:
-    input = raw_input
-except NameError:
-    pass
 
 def scan_movie_files(movies_folder, movie_extensions, list=[]):
     ''' Print files in movies_folder with extensions in movie_extensions, recursively. '''
@@ -51,13 +34,28 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                 if not filepath.endswith(movie_extension):
                     continue
 
-                film = filename.replace('.' + movie_extension, '')
-                film = re.sub(ur'[\W_]+', ' ', film, flags=re.UNICODE)
+                # Skip folders that contain summary and cover
+                summary_file = os.path.join(movies_folder, "Summary.txt")
+                if ( os.path.isfile(summary_file) and scan_method == 'new' ):
+                    continue
 
-                info = {
-                        "folder": movies_folder,
-                        "keywords": film,
-                    }
+                # Remove strings from the filename
+                film = filename.replace('.' + movie_extension, '')
+
+                # Clean fixed strings
+                film = re.sub(ur'[\W\_\.\-\(\)\[\]]+', ' ', film, flags=re.UNICODE)
+
+                # Add parenthesis to year
+                film = re.sub(r'(\d+){1,4}', r'(\1)', film)
+
+                # Remove custom strings fom the filename
+                for str in eval(ignore_strings):
+                    film = film.replace(str, '')
+
+                # Remove duplicated spaces
+                film = re.sub(r'(\s+)', r' ', film)
+
+                info = {"folder": movies_folder, "keywords": film}
 
                 list.append(info)
 
@@ -71,168 +69,12 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
             # We got a directory, enter into it for further processing
             scan_movie_files(filepath, movie_extensions, list)
 
-
-def get_imdb(list, limit, use_dic):
-    ''' Get IMDB data. '''
-
-    i = imdb.IMDb()
-
-    # Traverse through all files
-    for item in list:
-        folder = item['folder']
-        keywords = item['keywords']
-
-        # Skip folders that contain summary and cover
-        if ( not os.path.isfile(folder + "/Summary.txt") or scan_method == 'all' ):
-
-            if ( not os.path.isfile(folder + "/folder.jpg") or scan_method == 'all' ):
-
-                # search imdb
-                in_encoding = sys.stdin.encoding or sys.getdefaultencoding()
-                out_encoding = sys.stdout.encoding or sys.getdefaultencoding()
-
-                print "File: " + keywords
-                if use_dic == 1:
-                    keywords = spellcheck(keywords)
-                    print "Keywords: " + keywords
-
-                title = unicode(keywords, in_encoding, 'replace')
-                try:
-                    # Do the search, and get the results (a list of Movie objects).
-                    results = i.search_movie(title, limit)
-                except imdb.IMDbError, e:
-                    print "Probably you're not connected to Internet.  Complete error report:"
-                    print e
-                    sys.exit(3)
-
-                if results:
-                    # Print the results.
-                    print '    %s result%s for "%s":' % (len(results),
-                                                        ('', 's')[len(results) != 1],
-                                                        title.encode(out_encoding, 'replace'))
-                    print 'Folder ' + folder
-                    print 'movieID\t: imdbID : title'
-
-                    # Print the long imdb title for every movie.
-                    for movie in results:
-                        outp = u'%s\t: %s : %s' % (movie.movieID, i.get_imdbID(movie),
-                                                    movie['long imdb title'])
-                        print outp.encode(out_encoding, 'replace')
-
-                    #get close matches only example
-                    #words = ['hello', 'Hallo', 'hi', 'house', 'key', 'screen', 'hallo', 'question', 'format']
-                    #difflib.get_close_matches('Hello', words)
-
-                    # Use first result
-                    movie = results[0]
-
-                    i.update(movie)
-                    movieID = movie.movieID
-
-                    # print movie info
-                    filmInfo = movie.summary()
-                    filmInfo += u'IMDB ID: %s.\n' % movieID
-
-                    # save covers
-                    thumb_url = movie.get('cover url')
-                    cover_url = movie.get('full-size cover url')
-
-                    if cover_url:
-                        filmInfo += u'Cover: %s.\n' % cover_url
-                        print 'Fetching cover'
-                        try:
-                            # Fetch online image
-                            if ( not os.path.isfile(folder + "/thumb.jpg")):
-                                urllib.urlretrieve (thumb_url, folder + "/thumb.jpg")
-                            if ( not os.path.isfile(folder + "/folder.jpg")):
-                                urllib.urlretrieve (cover_url, folder + "/folder.jpg")
-                        except imdb.IMDbError, e:
-                            print "NOTICE: Could not download cover:"
-                            print e
-                    else:
-                        print 'NOTICE: No cover available'
-
-                    # Write film info
-                    write_info(folder, filmInfo.encode(out_encoding, 'replace'))
-
-                    print 'Sending to CMS'
-                    send_cms(folder, movie)
-                else:
-                    print 'NOTICE: No results found'
-
-def write_info(folder, info):
-    ''' Write local film info. '''
-
-    # Create file
-    summaryFile = open(folder + '/Summary.txt','w')
-    summaryFile.write(info)
-    summaryFile.close()
-
-    print info
-
-
-def send_cms(folder, movie):
-    ''' Send info to end point. '''
-
-    config = ConfigParser.RawConfigParser()
-    config.read(pwd + '/config.ini')
-    cms_api_url = config.get('CMS','cms_api_url')
-
-    data = {
-        'folder': folder,
-        'owned': 'owned',
-        'imdb_id': movie.movieID,
-        'genres': movie.get('genre'),
-        'title': movie.get('long imdb title'),
-        'plot': movie.get('plot summary'),
-        'countries': movie.get('country'),
-        'directors': get_people(movie.get('director')),
-        'cast': get_people(movie.get('cast')),
-        'writer': get_people(movie.get('writer')),
-        'rating': movie.get('rating'),
-        'votes': movie.get('votes'),
-        'thumb': movie.get('cover url'),
-        'cover': movie.get('full-size cover url'),
-    }
-
-    req = urllib2.Request(cms_api_url)
-    req.add_header('Content-Type', 'application/json')
-
-    response = urllib2.urlopen(req, json.dumps(data))
-    print response.read()
-
-def get_people(personList):
-    """ Build a list of ids and names """
-    ids = []
-    names = []
-    if type(personList) is list:
-        for person in personList:
-            ids.append(person.getID())
-            names.append(person.get('name'))
-    else:
-        person = personList
-        ids.append(person.getID())
-        names.append(person.get('name'))
-
-    return {'ids':ids, 'names':names}
-
 if __name__ == '__main__':
 
-    # Get current folder
-    pwd = os.getcwd()
-
-    config = ConfigParser.RawConfigParser()
-
-    # Read config file
-    config.read(pwd + '/config.ini')
-
-    imdbpy_folder = config.get('Library','imdbpy_folder')
-    limit = config.get('Library','imdbpy_limit')
-    movies_folder = config.get('Movies','movies_folder')
-    extensions = eval(config.get('Movies','file_extensions'))
-    cms_api_url = config.get('CMS','cms_api_url')
-    cms_cron_url = config.get('CMS','cms_cron_url')
-    use_dic = config.get('Options','use_dic')
+    movies_folder = get_config('Movies','movies_folder')
+    extensions = eval(get_config('Options','file_extensions'))
+    ignore_strings = get_config('Options','ignore_strings')
+    verbose_level = int(get_config('Options','verbose_level'))
     scan_method = 'new'
 
     # Read command line args
@@ -251,7 +93,8 @@ if __name__ == '__main__':
         else:
             print("Usage: %s -i input -o output" % sys.argv[0])
 
-    print('\n -- Looking for movies in "{0}" --\n'.format(movies_folder))
+    if verbose_level > 0:
+        print('\n -- Looking for movies in "{0}" --\n'.format(movies_folder))
     # Set the number of processed files equal to zero
     scan_movie_files.counter = 0
 
@@ -259,10 +102,11 @@ if __name__ == '__main__':
     scan_movie_files(movies_folder, extensions)
 
     # We are done. Exit now.
-    print('\n -- {0} Movie File(s) found in directory {1} --'.format \
+    if verbose_level > 0:
+        print('\n -- {0} Movie File(s) found in directory {1} --'.format \
             (scan_movie_files.counter, movies_folder))
-    print
+        print
 
     # Fetch imdb data
-    get_imdb(scan_movie_files.list, limit, use_dic)
-
+    if hasattr(scan_movie_files, 'list'):
+        get_imdb(scan_movie_files.list)
