@@ -84,6 +84,15 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
             # We got a directory, enter into it for further processing
             scan_movie_files(filepath, movie_extensions, list)
 
+def usage():
+    print("Usage: %s -f <folder> -o [new|all] -d -h" % sys.argv[0])
+    print("-f <folder> The folder where to scan your movies")
+    print("-o new      Only process folders that do not have Summary.txt")
+    print("   all      Process all folders")
+    print("-d          Dry run. Do not save anything")
+    print("-h          This help")
+    print
+
 if __name__ == '__main__':
 
     movies_folder = get_config('Movies','movies_folder')
@@ -95,10 +104,10 @@ if __name__ == '__main__':
 
     # Read command line args
     try:
-        myopts, args = getopt.getopt(sys.argv[1:],"f:o:d")
+        myopts, args = getopt.getopt(sys.argv[1:],"f:o:dh")
     except getopt.GetoptError as e:
         print (str(e))
-        print("Usage: %s -f <folder> -o [new|all] -dry-run" % sys.argv[0])
+        usage()
         sys.exit(2)
 
     for o, a in myopts:
@@ -108,8 +117,10 @@ if __name__ == '__main__':
             scan_method = a
         elif o == '-d':
             dry_run = 1
+        elif o == '-h':
+            usage()
         else:
-            print("Usage: %s -i input -o output" % sys.argv[0])
+            usage()
 
     if verbose_level > 0:
         print('\n -- Looking for movies in "{0}" --\n'.format(movies_folder))
