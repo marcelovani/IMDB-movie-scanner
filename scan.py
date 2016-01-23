@@ -33,7 +33,7 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
             # Check if the file has an extension of typical video files
             for movie_extension in movie_extensions:
                 # Not a movie file, ignore
-                if not filepath.endswith(movie_extension):
+                if not filepath.lower().endswith(movie_extension.lower()):
                     continue
 
                 # Skip folders that contain summary and cover
@@ -50,10 +50,10 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                 keywords = filename.replace('.' + movie_extension, '').lower()
 
                 # Clean fixed strings
-                keywords = re.sub(ur'[\W\_\.\(\)\[\]]+', ' ', keywords, flags=re.UNICODE)
+                keywords = re.sub(ur'[\_\.\(\)\[\]]+', ' ', keywords, flags=re.UNICODE)
 
                 # Clear single digits if year is present
-                keywords = re.sub(r'(\s\d{1}\s)(.*)(\d{4})', r' \2\3', keywords)
+                #keywords = re.sub(r'(\s\d{1}\s)(.*)(\d{4})', r' \2\3', keywords)
 
                 # Add parenthesis to year
                 keywords = re.sub(r'(\d{4})', r'(\1)', keywords)
@@ -68,7 +68,7 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
                 info = {"folder": movies_folder, "keywords": keywords}
 
                 if verbose_level > 1:
-                    print "Filename: " + filename
+                    print "Filename: " + filepath
                     print "Keywords: " + keywords
                     print
 
