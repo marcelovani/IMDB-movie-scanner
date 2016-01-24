@@ -38,6 +38,7 @@ if __name__ == "__main__":
 
     config.add_section('Movies')
     config.set('Movies','movies_folder', movies_folder)
+    config.set('Movies','blacklist_folders', ['Folder name'])
 
     config.add_section('CMS')
     config.set('CMS','cms_api_url','http://www.example.com')

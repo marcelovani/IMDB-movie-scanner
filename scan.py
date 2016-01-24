@@ -27,8 +27,13 @@ def scan_movie_files(movies_folder, movie_extensions, list=[]):
     for filename in movies_folder_files:
         filepath = os.path.join(movies_folder, filename)
 
+        blacklisted = False
+        for bname in eval(blacklist_folders):
+            if ( movies_folder.find(bname) != -1 ):
+                blacklisted = True
+
         # Check if it's a normal file or directory
-        if os.path.isfile(filepath):
+        if not blacklisted and os.path.isfile(filepath):
 
             # Check if the file has an extension of typical video files
             for movie_extension in movie_extensions:
@@ -96,6 +101,7 @@ def usage():
 if __name__ == '__main__':
 
     movies_folder = get_config('Movies','movies_folder')
+    blacklist_folders = get_config('Movies','blacklist_folders')
     extensions = eval(get_config('Options','file_extensions'))
     ignore_strings = get_config('Options','ignore_strings')
     verbose_level = int(get_config('Options','verbose_level'))
