@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     config.add_section('Options')
     config.set('Options','use_dic', 0)
-    config.set('Options','file_extensions', ['avi', 'dat', 'mp4', 'mkv', 'vob', 'mpeg', 'mpg', 'wmv', 'm4v', 'divx'])
+    config.set('Options','file_extensions', ['avi', 'dat', 'mp4', 'mkv', 'vob', 'mpeg', 'mpg', 'wmv', 'm4v', 'divx', 'mov'])
     config.set('Options','ignore_strings', ['CD1', 'CD2', 'DVD', '3D'])
     config.set('Options','verbose_level', 3)
 
