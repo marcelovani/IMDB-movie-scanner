@@ -41,7 +41,7 @@ if __name__ == "__main__":
     config.set('Movies','blacklist_folders', ['Folder name'])
 
     config.add_section('CMS')
-    config.set('CMS','cms_api_url','http://www.example.com')
+    config.set('CMS','cms_api_url','http://www.example.com/api/imdb/movie/add')
     config.set('CMS','cms_cron_url','http://www.example.com/cron.php')
     config.set('CMS','cms_api_id','admin')
     config.set('CMS','cms_api_key','0000-0000-0000-0000')

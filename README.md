@@ -3,19 +3,28 @@
 Python script that scans local folders and updates meta data and cover photos. It can
 send the film info to a CMS using an End point.
 
-* It will only scan one movie per folder, which means, you need to create a folder for each film.
+* It will only scan one movie per folder, which means, you need to create a folder for each movie.
 
 Requires IMDBPY
-https://github.com/alberanid/imdbpy
 
 Installation
 ============
 - Download IMDBPY inside a folder called imdbpy. It's advisable to place this folder as a sibbling of IMDB-movie-scanner
-- Go inside the folder and run: sudo ./setup.py [folder]
-  The parameter folder defines where to scan your movies from
+  $ git clone https://github.com/alberanid/imdbpy
 
-- Go inside IMDB Movie Scanner folder and run: sudo ./setup.py install
+- Go inside the folder and run the install
+  $ cd imdbpy
+  $ sudo ./setup.py install
+
+- Go inside IMDB Movie Scanner folder and run install
+  $ cd ..
+  $ cd IMDB-movie-scanner
+  $ sudo ./setup.py --movies-folder /xMarcello/Development/sites/moviec/profiles/movie_catalog/modules/devel/dummy/movies-test (put your movies folder here)
+
 The installation will create a file called config.ini which you can edit and customize your options
+  Edit config.ini and change these settings to match your site domain where is says example.com
+  - cms_api_url
+  - cms_cron_url
 
 Usage
 ========
