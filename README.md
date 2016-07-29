@@ -10,16 +10,19 @@ Requires IMDBPY
 Installation
 ============
 - Download IMDBPY inside a folder called imdbpy. It's advisable to place this folder as a sibbling of IMDB-movie-scanner
+
   ```
     $ git clone https://github.com/alberanid/imdbpy
   ```
 - Go inside the folder and run the install
+
   ``` 
     $ cd imdbpy
     
     $ sudo ./setup.py install
   ```
 - Go inside IMDB Movie Scanner folder and run install
+
   ```
     $ cd ..
     
