@@ -16,12 +16,15 @@ Installation
 - Go inside the folder and run the install
   ``` 
     $ cd imdbpy
+    
     $ sudo ./setup.py install
   ```
 - Go inside IMDB Movie Scanner folder and run install
   ```
     $ cd ..
+    
     $ cd IMDB-movie-scanner
+    
     $ sudo ./setup.py --movies-folder /xMarcello/Development/sites/moviec/profiles/movie_catalog/modules/devel/dummy/movies-test (put your movies folder here)
   ```
 
